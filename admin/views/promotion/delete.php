@@ -1,0 +1,41 @@
+<?php
+$title = "Xóa khuyến mãi";
+?>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><?= $title ?></h5>
+
+    <div>
+        <button type="submit" form="formDelete" class="btn btn-danger">
+            Xóa
+        </button>
+
+        <a href="index.php?controller=promotion" class="btn btn-secondary ms-1">
+            Quay lại
+        </a>
+    </div>
+</div>
+
+<div class="card card-danger card-outline">
+    <div class="card-body">
+        <form id="formDelete" method="post"
+            action="index.php?controller=promotion&action=deletePost&id=<?= $model['PromotionID'] ?>">
+
+            <div class="alert alert-warning">
+                Bạn có chắc muốn xóa không?
+            </div>
+
+            <dl class="row">
+                <dt class="col-sm-3">Tên</dt>
+                <dd class="col-sm-9"><?= htmlspecialchars($model['PromotionName']) ?></dd>
+
+                <dt class="col-sm-3">Giảm giá</dt>
+                <dd class="col-sm-9">
+                    <?= $model['DiscountType'] == 1 
+                        ? $model['DiscountValue'] . '%' 
+                        : number_format($model['DiscountValue']) . 'đ' ?>
+                </dd>
+            </dl>
+        </form>
+    </div>
+</div>
