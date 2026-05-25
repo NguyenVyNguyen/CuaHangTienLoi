@@ -15,9 +15,9 @@ class CustomerRepository implements ICustomerRepository
     // LIST
     public function list($input)
     {
-        $page = $input['page'];
-        $pageSize = $input['pageSize'];
-        $search = $input['searchValue'];
+        $page = $input["page"] ?? 1;
+        $pageSize = $input["pageSize"] ?? 10;
+        $searchValue = $input["searchValue"] ?? "";
 
         $offset = ($page - 1) * $pageSize;
 
@@ -36,8 +36,8 @@ class CustomerRepository implements ICustomerRepository
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([
-            "search" => $search,
-            "searchLike" => "%$search%"
+            "search" => $searchValue,
+            "searchLike" => "%$searchValue%"
         ]);
 
         $result["RowCount"] = $stmt->fetchColumn();
@@ -55,8 +55,8 @@ class CustomerRepository implements ICustomerRepository
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([
-            "search" => $search,
-            "searchLike" => "%$search%"
+            "search" => $searchValue,
+            "searchLike" => "%$searchValue%"
         ]);
 
         $result["DataItems"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -75,7 +75,7 @@ class CustomerRepository implements ICustomerRepository
 
             if ($start > 2) {
                 $result["Pages"][] = [
-                    "Page" => 0 
+                    "Page" => 0
                 ];
             }
         }
@@ -90,7 +90,7 @@ class CustomerRepository implements ICustomerRepository
         if ($end < $totalPages) {
             if ($end < $totalPages - 1) {
                 $result["Pages"][] = [
-                    "Page" => 0 
+                    "Page" => 0
                 ];
             }
 

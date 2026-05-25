@@ -67,6 +67,12 @@ switch ($action) {
         $controller->search();
         break;
 
+    case 'searchProduct':
+        if (method_exists($controller, 'searchProduct')) {
+            $controller->searchProduct();
+        }
+        break;
+
     case 'detail':
         if (method_exists($controller, 'detail')) {
             $controller->detail($id);
@@ -87,13 +93,49 @@ switch ($action) {
         }
         break;
 
+    // ================= CART (🔥 THÊM MỚI) =================
+    case 'addCartItem':
+        if (method_exists($controller, 'addCartItem')) {
+            $controller->addCartItem();
+        }
+        break;
+
+    case 'showCart':
+        if (method_exists($controller, 'showCart')) {
+            $controller->showCart();
+        }
+        break;
+
+    case 'updateCartItem':
+        if (method_exists($controller, 'updateCartItem')) {
+            $controller->updateCartItem();
+        }
+        break;
+
+    case 'deleteCartItem':
+        if (method_exists($controller, 'deleteCartItem')) {
+            $controller->deleteCartItem();
+        }
+        break;
+
+    case 'clearCart':
+        if (method_exists($controller, 'clearCart')) {
+            $controller->clearCart();
+        }
+        break;
+
+    case 'createOrder':
+        if (method_exists($controller, 'createOrder')) {
+            $controller->createOrder();
+        }
+        break;
+
     // ================= PRODUCT EXTENSIONS (PHOTO) =================
     case 'createPhoto':
         $controller->createPhoto($id);
         break;
 
     case 'editPhoto':
-        // Truyền id mặt hàng và id ảnh
         $controller->editPhoto($id, $subId);
         break;
 
@@ -111,7 +153,6 @@ switch ($action) {
         break;
 
     case 'editAttribute':
-        // Truyền id mặt hàng và id thuộc tính
         $controller->editAttribute($id, $subId);
         break;
 

@@ -1,10 +1,9 @@
 <?php
-/** @var array $cart */
+$cart = $cart ?? []; // 🔥 FIX NULL
 
 $stt = 0;
 $sumPrice = 0;
 ?>
-<pre><?php print_r($cart); ?></pre>
 
 <div class="card card-outline card-success">
     <div class="card-header">
@@ -15,6 +14,14 @@ $sumPrice = 0;
     </div>
 
     <div class="card-body">
+
+        <?php if (empty($cart)): ?>
+            <div class="text-center text-muted p-4">
+                <i class="bi bi-cart-x fs-3"></i><br>
+                Giỏ hàng đang trống
+            </div>
+        <?php else: ?>
+
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-success">
                 <tr>
@@ -38,21 +45,27 @@ $sumPrice = 0;
                         <td class="text-center"><?= $stt ?></td>
                         <td><?= htmlspecialchars($item["ProductName"]) ?></td>
                         <td class="text-center"><?= $item["Unit"] ?></td>
-                        <td class="text-center"><?= $item["Quantity"] ?></td>
+
+                        <!-- 🔥 UPDATE REALTIME -->
+                        <td class="text-center">
+                            <form onsubmit="updateCartItem(event, this)">
+                                <input type="hidden" name="productId" value="<?= $item["ProductID"] ?>">
+                                <input type="number"
+                                       name="quantity"
+                                       value="<?= $item["Quantity"] ?>"
+                                       min="1"
+                                       class="form-control form-control-sm text-center"
+                                       onchange="this.form.submit()">
+                            </form>
+                        </td>
+
                         <td class="text-end"><?= number_format($item["SalePrice"]) ?></td>
                         <td class="text-end"><?= number_format($total) ?></td>
 
-                        <td class="text-end text-nowrap">
-                            <!-- EDIT -->
-                            <a class="btn btn-sm btn-primary"
-                               href="index.php?controller=order&action=editCartItem&productId=<?= $item["ProductID"] ?>">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-
-                            <!-- DELETE -->
+                        <td class="text-end">
                             <button class="btn btn-sm btn-danger"
                                     onclick="deleteCartItem(<?= $item['ProductID'] ?>)">
-                                <i class="bi bi-dash"></i>
+                                <i class="bi bi-x"></i>
                             </button>
                         </td>
                     </tr>
@@ -62,7 +75,7 @@ $sumPrice = 0;
             <tfoot>
                 <tr>
                     <th colspan="5" class="text-end">Tổng cộng:</th>
-                    <th class="text-end"><?= number_format($sumPrice) ?></th>
+                    <th class="text-end text-danger"><?= number_format($sumPrice) ?></th>
                     <th></th>
                 </tr>
             </tfoot>
@@ -75,5 +88,8 @@ $sumPrice = 0;
                 Xóa giỏ hàng
             </button>
         </div>
+
+        <?php endif; ?>
+
     </div>
 </div>

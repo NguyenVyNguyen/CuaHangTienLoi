@@ -31,6 +31,10 @@ class ApiResult
 
     public function toJson()
     {
-        return json_encode($this->toArray());
+        header('Content-Type: application/json');
+        echo json_encode([
+            "code" => $this->code,
+            "message" => $this->message
+        ]);
     }
 }

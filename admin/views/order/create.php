@@ -1,4 +1,5 @@
 <?php
+
 /** @var array $model */
 /** @var array $provinces */
 /** @var array $customers */
@@ -13,10 +14,10 @@
             </div>
             <div class="card-body">
                 <form id="formSearch"
-                      method="get"
-                      action="index.php?controller=order&action=searchProduct"
-                      onsubmit="paginationSearch(event, this, 1)"
-                      class="mb-3">
+                    method="get"
+                    action="index.php?controller=order&action=searchProduct"
+                    onsubmit="paginationSearch(event, this, 1)"
+                    class="mb-3">
 
                     <div class="input-group">
                         <input type="hidden" name="pageSize" value="<?= $model['pageSize'] ?>" />
@@ -24,10 +25,10 @@
                         <input type="hidden" name="SupplierID" value="<?= $model['SupplierID'] ?>" />
 
                         <input class="form-control"
-                               name="SearchValue"
-                               value="<?= htmlspecialchars($model['SearchValue']) ?>"
-                               placeholder="Nhập tên mặt hàng cần tìm"
-                               autofocus />
+                            name="SearchValue"
+                            value="<?= htmlspecialchars($model['SearchValue']) ?>"
+                            placeholder="Nhập tên mặt hàng cần tìm"
+                            autofocus />
 
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-search"></i>
@@ -35,7 +36,10 @@
                     </div>
                 </form>
 
-                <div id="searchResult"></div>
+                <div id="searchResult">
+                    <?php include __DIR__ . "/searchProduct.php"; ?>
+                </div>
+
             </div>
         </div>
     </div>
@@ -44,7 +48,9 @@
     <div class="col-8">
         <!-- CART -->
         <div class="row">
-            <div class="col-12" id="cart"></div>
+            <div class="col-12" id="cart">
+                <?php include __DIR__ . "/showCart.php"; ?>
+            </div>
         </div>
 
         <!-- CUSTOMER INFO -->
@@ -59,8 +65,8 @@
 
                     <div class="card-body">
                         <form method="post"
-                              action="index.php?controller=order&action=createOrder"
-                              onsubmit="createOrder(event, this)">
+                            action="index.php?controller=order&action=createOrder"
+                            onsubmit="createOrder(event, this)">
 
                             <!-- CUSTOMER -->
                             <div class="row mb-3">
@@ -97,8 +103,8 @@
                                 <label class="col-md-2 col-form-label">Địa chỉ</label>
                                 <div class="col-md-10">
                                     <textarea class="form-control"
-                                              name="address"
-                                              placeholder="Địa chỉ nhận hàng..."></textarea>
+                                        name="address"
+                                        placeholder="Địa chỉ nhận hàng..."></textarea>
                                 </div>
                             </div>
 
@@ -118,123 +124,161 @@
 </div>
 
 <!-- ================= JS ================= -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5+5hb7ie1l5+5hb7ie1l5+5hb7ie1l5+5hb7ie1l5+5hb7ie1l5+5hb7ie1l5+5hb7ie" crossorigin="anonymous"></script>
 <script>
-$(document).ready(function () {
-    var form = document.getElementById("formSearch");
-    paginationSearch(null, form, 1);
-    showCart();
-});
-
-// SEARCH PRODUCT
-function paginationSearch(event, form, page) {
-    if (event) event.preventDefault();
-
-    var url = $(form).attr("action");
-    var postData = $(form).serializeArray();
-    postData.push({ name: "page", value: page });
-
-    $.ajax({
-        url: url,
-        type: "GET",
-        data: postData,
-        success: function (data) {
-            $("#searchResult").html(data);
-        },
-        error: function () {
-            alert("Không thể tải danh sách sản phẩm.");
-        }
+    $(document).ready(function() {
+        const form = document.getElementById("formSearch");
+        paginationSearch(null, form, 1);
+       //showCart();
     });
-}
 
-// SHOW CART
-function showCart() {
-    $.ajax({
-        url: "index.php?controller=order&action=showCart",
-        type: "GET",
-        success: function (data) {
-            $("#cart").html(data);
-        }
-    });
-}
 
-// ADD CART
-function addCartItem(event, form) {
-    event.preventDefault();
+    // =========================
+    // SEARCH PRODUCT
+    // =========================
+    function paginationSearch(event, form, page) {
+        if (event) event.preventDefault();
 
-    $.post(
-        "index.php?controller=order&action=addCartItem",
-        $(form).serialize(),
-        function (res) {
-            if (res.code > 0 || res.success === 1) {
-                showCart();
-            } else {
-                alert(res.message);
+        var url = $(form).attr("action");
+        var postData = $(form).serializeArray();
+        postData.push({
+            name: "page",
+            value: page
+        });
+
+        $.ajax({
+            url: url,
+            type: "GET",
+            data: postData,
+            success: function(data) {
+                $("#searchResult").html(data);
+            },
+            error: function() {
+                alert("Không thể tải danh sách sản phẩm.");
             }
-        }
-    );
-}
+        });
+    }
 
-// DELETE ITEM
-function deleteCartItem(productID) {
-    if (confirm("Xóa mặt hàng này khỏi giỏ?")) {
+
+    // =========================
+    // SHOW CART (CHUẨN 1 NGUỒN)
+    // =========================
+    function showCart() {
+        $.ajax({
+            url: "index.php?controller=order&action=showCart",
+            type: "GET",
+            cache: false,
+            success: function(html) {
+                $("#cart").html(html);
+            }
+        });
+    }
+
+
+    // =========================
+    // ADD CART (FIX CHỐNG DOUBLE REQUEST)
+    // =========================
+    function addCartItem(form) {
+        if (!form) return;
+
+        const btn = form.querySelector("button");
+        if (btn) btn.disabled = true;
+
+        $.ajax({
+            url: "index.php?controller=order&action=addCartItem",
+            type: "POST",
+            data: $(form).serialize(),
+            dataType: "json",
+
+            success: function(res) {
+                if (res.code > 0) {
+                    showCart(); // 🔥 FIX CHUẨN
+                } else {
+                    alert(res.message);
+                }
+            },
+
+            error: function(xhr) {
+                console.log(xhr.responseText);
+            },
+
+            complete: function() {
+                if (btn) btn.disabled = false;
+            }
+        });
+    }
+
+
+    // =========================
+    // DELETE ITEM
+    // =========================
+    function deleteCartItem(productID) {
+        if (!confirm("Xóa mặt hàng này khỏi giỏ?")) return;
+
         $.post(
-            "index.php?controller=order&action=deleteCartItem",
-            { productId: productID },
-            function () {
+            "index.php?controller=order&action=deleteCartItem", {
+                productId: productID
+            },
+            function() {
                 showCart();
             }
         );
     }
-}
 
-// CLEAR CART
-function clearCart() {
-    if (confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) {
+
+    // =========================
+    // CLEAR CART
+    // =========================
+    function clearCart() {
+        if (!confirm("Bạn có chắc muốn xóa toàn bộ giỏ hàng?")) return;
+
         $.post(
-            "index.php?controller=order&action=clearCart",
-            {},
-            function () {
+            "index.php?controller=order&action=clearCart", {},
+            function() {
                 showCart();
             }
         );
     }
-}
 
-// UPDATE ITEM
-function updateCartItem(event, form) {
-    if (event) event.preventDefault();
 
-    $.post(
-        "index.php?controller=order&action=updateCartItem",
-        $(form).serialize(),
-        function () {
-            showCart();
-        }
-    );
-}
+    // =========================
+    // UPDATE ITEM
+    // =========================
+    function updateCartItem(event, form) {
+        if (event) event.preventDefault();
 
-// CREATE ORDER
-function createOrder(event, form) {
-    event.preventDefault();
+        $.post(
+            "index.php?controller=order&action=updateCartItem",
+            $(form).serialize(),
+            function() {
+                showCart();
+            }
+        );
+    }
 
-    const formData = new FormData(form);
 
-    fetch("index.php?controller=order&action=createOrder", {
-        method: "POST",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(result => {
-        if (result.code === 0) {
-            alert(result.message);
-        } else {
-            window.location.href =
-                "index.php?controller=order&action=detail&id=" + result.code;
-        }
-    })
-    .catch(() => {
-        alert("Không thể tạo đơn hàng");
-    });
-}
+    // =========================
+    // CREATE ORDER
+    // =========================
+    function createOrder(event, form) {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+
+        fetch("index.php?controller=order&action=createOrder", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(result => {
+                if (result.code === 0) {
+                    alert(result.message);
+                } else {
+                    window.location.href =
+                        "index.php?controller=order&action=detail&id=" + result.code;
+                }
+            })
+            .catch(() => {
+                alert("Không thể tạo đơn hàng");
+            });
+    }
 </script>
